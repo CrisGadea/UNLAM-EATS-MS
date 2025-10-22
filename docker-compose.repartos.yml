@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  repartosapi:
+    image: repartosapi
+    build:
+      context: .
+      dockerfile: RepartosApi/Dockerfile
+    ports:
+      - "8003:8080"
+    depends_on:
+      - repartosdb
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=repartosdb;Database=RepartosDB;User=sa;Password=Repartos123.;TrustServerCertificate=True
+
+  repartosdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1436:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Repartos123.

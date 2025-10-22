@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\crisg\\source\\repos\\UnlamEats\\GatewayApi\\GatewayApi.csproj": {}
+    "C:\\Users\\ASUS\\Source\\Repos\\UNLAM-EATS-MS\\GatewayApi\\GatewayApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\crisg\\source\\repos\\UnlamEats\\GatewayApi\\GatewayApi.csproj": {
+    "C:\\Users\\ASUS\\Source\\Repos\\UNLAM-EATS-MS\\GatewayApi\\GatewayApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\crisg\\source\\repos\\UnlamEats\\GatewayApi\\GatewayApi.csproj",
+        "projectUniqueName": "C:\\Users\\ASUS\\Source\\Repos\\UNLAM-EATS-MS\\GatewayApi\\GatewayApi.csproj",
         "projectName": "GatewayApi",
-        "projectPath": "C:\\Users\\crisg\\source\\repos\\UnlamEats\\GatewayApi\\GatewayApi.csproj",
-        "packagesPath": "C:\\Users\\crisg\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\crisg\\source\\repos\\UnlamEats\\GatewayApi\\obj\\",
+        "projectPath": "C:\\Users\\ASUS\\Source\\Repos\\UNLAM-EATS-MS\\GatewayApi\\GatewayApi.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ASUS\\Source\\Repos\\UNLAM-EATS-MS\\GatewayApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\crisg\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -82,7 +82,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
