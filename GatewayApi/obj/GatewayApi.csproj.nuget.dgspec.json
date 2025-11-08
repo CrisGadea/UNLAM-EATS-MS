@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[1.22.1, )"
             },
+            "Ocelot": {
+              "target": "Package",
+              "version": "[18.0.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"

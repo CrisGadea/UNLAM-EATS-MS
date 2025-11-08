@@ -1,1 +1,10 @@
 .vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.log
+*.nupkg
+.idea/
+docker-compose.override.yml
+node_modules/

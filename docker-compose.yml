@@ -4,35 +4,57 @@ services:
     image: ${DOCKER_REGISTRY-}gatewayapi
     build:
       context: .
-      dockerfile: GatewayAPI/Dockerfile
+      dockerfile: GatewayApi/Dockerfile
     ports:
       - "8000:8080" # El puerto público de la aplicación
+    depends_on:
+      restauranteapi:
+        condition: service_healthy
+      pedidosapi:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Microservicio de Restaurantes
   restauranteapi:
     image: ${DOCKER_REGISTRY-}restauranteapi
     build:
       context: .
-      dockerfile: RestauranteAPI/Dockerfile
+      dockerfile: RestauranteApi/Dockerfile
     ports:
       - "8001:8080" # Puerto interno para debugging
     depends_on:
-      - restaurantedb
+      restaurantedb:
+        condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=Server=restaurantedb;Database=RestauranteDB;User=sa;Password=Your_password123;TrustServerCertificate=True
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   # Microservicio de Pedidos
   pedidosapi:
     image: ${DOCKER_REGISTRY-}pedidosapi
     build:
       context: .
-      dockerfile: PedidosAPI/Dockerfile
+      dockerfile: PedidosApi/Dockerfile
     ports:
       - "8002:8080" # Puerto interno para debugging
     depends_on:
-      - pedidosdb
+      pedidosdb:
+        condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=Server=pedidosdb;Database=PedidosDB;User=sa;Password=Your_password123;TrustServerCertificate=True
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   # Base de Datos para Restaurantes
   restaurantedb:
@@ -42,10 +64,22 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   # Base de Datos para Pedidos
   pedidosdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1435:1433" # Mapea a un puerto único en el host
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
