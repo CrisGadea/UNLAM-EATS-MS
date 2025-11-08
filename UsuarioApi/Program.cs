@@ -3,6 +3,9 @@ using UsuarioApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// <-- 1. DEFINE EL NOMBRE DE LA POLÍTICA CORS
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 // --- INICIO DE LA CONFIGURACIÓN ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<UsuariosContext>(options =>
@@ -15,6 +18,19 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// <-- 2. AÑADE EL SERVICIO DE CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          // Esta es la URL donde corre tu frontend de Angular
+                          policy.WithOrigins("http://localhost:4200")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
 
 var app = builder.Build();
 
@@ -67,6 +83,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// <-- 3. USA LA POLÍTICA DE CORS (¡ANTES DE UseAuthorization!)
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 

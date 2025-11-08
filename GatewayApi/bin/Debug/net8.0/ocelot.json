@@ -1,0 +1,27 @@
+
+
+{
+  "Routes": [
+    // --- Rutas para el Microservicio de Restaurantes ---
+    {
+      // ... (existente)
+    },
+    // --- Rutas para el Microservicio de Pedidos ---
+    {
+      // ... (existente)
+    },
+    // --- NUEVA RUTA PARA USUARIOS ---
+    {
+      "UpstreamPathTemplate": "/usuarios/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "usuariosapi", "Port": 8080 }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:8000"
+  }
+}
