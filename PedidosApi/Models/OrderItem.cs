@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace PedidosApi.Models;
 
 public class OrderItem
@@ -9,5 +10,6 @@ public class OrderItem
     public decimal PriceSnapshot { get; set; }
     public int Quantity { get; set; }
 
+    [JsonIgnore]
     public Order? Order { get; set; }
 }

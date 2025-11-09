@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace RestauranteApi.Models;
 
 public class MenuItem
@@ -9,5 +10,6 @@ public class MenuItem
     public decimal Price { get; set; }
     public bool IsAvailable { get; set; } = true;
 
+    [JsonIgnore]
     public Restaurant? Restaurant { get; set; }
 }

@@ -56,7 +56,7 @@ for (var attempt = 1; attempt <= maxRetries; attempt++)
     }
 }
 
-app.UseHttpsRedirection();
+// HTTPS redirection disabled for gateway HTTP traffic
 
 var group = app.MapGroup("/api/restaurantes");
 
@@ -71,10 +71,7 @@ group.MapGet("/", async (AppDbContext db) =>
     .WithName("ListarRestaurantes")
     .WithOpenApi();
 
-group.MapGet("", async (AppDbContext db) =>
-    Results.Ok(await db.Restaurants.AsNoTracking().ToListAsync()))
-    .WithName("ListarRestaurantesNoSlash")
-    .WithOpenApi();
+// Removed duplicate route without slash to avoid ambiguity
 
 group.MapGet("/{id:int}", async (int id, AppDbContext db) =>
 {
@@ -82,6 +79,16 @@ group.MapGet("/{id:int}", async (int id, AppDbContext db) =>
     return entity is null ? Results.NotFound() : Results.Ok(entity);
 })
     .WithName("ObtenerRestaurante")
+    .WithOpenApi();
+
+group.MapGet("/{id:int}/menu", async (int id, AppDbContext db) =>
+{
+    var exists = await db.Restaurants.AsNoTracking().AnyAsync(r => r.Id == id);
+    if (!exists) return Results.NotFound();
+    var items = await db.MenuItems.AsNoTracking().Where(m => m.RestaurantId == id && m.IsAvailable).ToListAsync();
+    return Results.Ok(items);
+})
+    .WithName("ObtenerMenuPorRestaurante")
     .WithOpenApi();
 
 group.MapPost("/", async (Restaurant dto, AppDbContext db) =>
@@ -118,15 +125,7 @@ group.MapDelete("/{id:int}", async (int id, AppDbContext db) =>
     .WithOpenApi();
 
 // Menu endpoints
-group.MapGet("/{id:int}/menu", async (int id, AppDbContext db) =>
-{
-    var exists = await db.Restaurants.AnyAsync(r => r.Id == id);
-    if (!exists) return Results.NotFound();
-    var items = await db.MenuItems.Where(m => m.RestaurantId == id).AsNoTracking().ToListAsync();
-    return Results.Ok(items);
-})
-    .WithName("ListarMenu")
-    .WithOpenApi();
+// Removed duplicate GET menu route; the earlier definition includes availability filtering
 
 group.MapPost("/{id:int}/menu", async (int id, MenuItem item, AppDbContext db) =>
 {
