@@ -2,104 +2,95 @@
   "Routes": [
     {
       "UpstreamPathTemplate": "/hubs/orders",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": ["GET"],
       "DownstreamPathTemplate": "/hubs/orders",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
       "Priority": 200
     },
     {
       "UpstreamPathTemplate": "/api/repartidores",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": ["GET"],
       "DownstreamPathTemplate": "/api/repartidores",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
       "Priority": 100
     },
     {
       "UpstreamPathTemplate": "/api/repartidores",
-      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamHttpMethod": ["POST"],
       "DownstreamPathTemplate": "/api/repartidores",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
       "Priority": 100
     },
     {
       "UpstreamPathTemplate": "/api/repartidores/",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": ["GET"],
       "DownstreamPathTemplate": "/api/repartidores",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
       "Priority": 100
     },
     {
       "UpstreamPathTemplate": "/api/restaurantes/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
       "DownstreamPathTemplate": "/api/restaurantes/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "restauranteapi", "Port": 8080 } ]
+      "DownstreamHostAndPorts": [{ "Host": "restauranteapi", "Port": 8080 }]
     },
     {
       "UpstreamPathTemplate": "/api/restaurantes",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": ["GET"],
       "DownstreamPathTemplate": "/api/restaurantes/",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "restauranteapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "restauranteapi", "Port": 8080 }],
       "Priority": 100
     },
     {
       "UpstreamPathTemplate": "/api/restaurantes/",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": ["GET"],
       "DownstreamPathTemplate": "/api/restaurantes/",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "restauranteapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "restauranteapi", "Port": 8080 }],
       "Priority": 100
     },
     {
       "UpstreamPathTemplate": "/api/pedidos/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
       "DownstreamPathTemplate": "/api/pedidos/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ]
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }]
     },
     {
       "UpstreamPathTemplate": "/api/pedidos",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": ["GET"],
       "DownstreamPathTemplate": "/api/pedidos/",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
       "Priority": 100
     },
     {
       "UpstreamPathTemplate": "/api/pedidos/",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": ["GET"],
       "DownstreamPathTemplate": "/api/pedidos/",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
       "Priority": 100
     },
     {
       "UpstreamPathTemplate": "/api/payments/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/payments/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
+      "DownstreamPathTemplate": "/api/payments/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "paymentsapi", "Port": 3002 } ]
+      "DownstreamHostAndPorts": [{ "Host": "paymentsapi", "Port": 3000 }]
     },
     {
       "UpstreamPathTemplate": "/api/payments",
-      "UpstreamHttpMethod": [ "GET", "POST" ],
-      "DownstreamPathTemplate": "/payments",
+      "UpstreamHttpMethod": ["GET", "POST"],
+      "DownstreamPathTemplate": "/api/payments",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "paymentsapi", "Port": 3002 } ],
-      "Priority": 100
-    },
-    {
-      "UpstreamPathTemplate": "/webhook/mercadopago",
-      "UpstreamHttpMethod": [ "POST" ],
-      "DownstreamPathTemplate": "/webhook/mercadopago",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "paymentsapi", "Port": 3002 } ],
-      "Priority": 100
+      "DownstreamHostAndPorts": [{ "Host": "paymentsapi", "Port": 3000 }]
     }
   ],
   "GlobalConfiguration": {

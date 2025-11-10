@@ -6,12 +6,14 @@ services:
       context: .
       dockerfile: GatewayApi/Dockerfile
     ports:
-      - "8000:8080" # El puerto público de la aplicación
+      - "8000:8080"
     depends_on:
       restauranteapi:
         condition: service_healthy
       pedidosapi:
         condition: service_healthy
+      productosapi:
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
       interval: 10s
@@ -25,7 +27,7 @@ services:
       context: .
       dockerfile: RestauranteApi/Dockerfile
     ports:
-      - "8001:8080" # Puerto interno para debugging
+      - "8001:8080"
     depends_on:
       restaurantedb:
         condition: service_healthy
@@ -44,7 +46,7 @@ services:
       context: .
       dockerfile: PedidosApi/Dockerfile
     ports:
-      - "8002:8080" # Puerto interno para debugging
+      - "8002:8080"
     depends_on:
       pedidosdb:
         condition: service_healthy
@@ -56,11 +58,26 @@ services:
       timeout: 5s
       retries: 10
 
+  # Microservicio de Productos
+  productosapi:
+    image: ${DOCKER_REGISTRY-}productosapi
+    build:
+      context: .
+      dockerfile: ProductosApi/Dockerfile
+    ports:
+      - "8005:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   # Base de Datos para Restaurantes
   restaurantedb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "1434:1433" # Mapea a un puerto único en el host
+      - "1434:1433"
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
@@ -74,7 +91,7 @@ services:
   pedidosdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "1435:1433" # Mapea a un puerto único en el host
+      - "1435:1433"
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
@@ -84,41 +101,30 @@ services:
       timeout: 5s
       retries: 20
 
-  postgres:
-    image: postgres:16
-    container_name: postgres
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=payments_db
+  usuariosdb:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
     ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "1438:1433" # Puerto único en el host (1434, 1435 y 1437 ya están en uso)
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Your_password123
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d payments_db -h localhost"]
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
-    networks: [backend]
+      retries: 20
 
-  paymentsapi:
-    build:
-      context: ./PaymentsApi
-      dockerfile: Dockerfile
-    container_name: payments-api
-    env_file:
-      - .env.docker
+  # productosDB
+  productosdb:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
     ports:
-      - "3002:3002"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks: [backend]
-
-networks:
-  backend:
-    driver: bridge
-
-volumes:
-  postgres_data:
+      - "1437:1433" # Puerto único en el host (1434 y 1435 ya están en uso)
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Your_password123
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    
