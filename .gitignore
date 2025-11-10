@@ -6,3 +6,12 @@ dist/
 bin/
 obj/
 /publish/
+# Archivos/carpetas generadas de compilaci�n
+[Bb]in/
+[Oo]bj/
+
+# Archivos de usuario/soluci�n de Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs

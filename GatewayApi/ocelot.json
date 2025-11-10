@@ -77,6 +77,54 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
       "Priority": 100
+    },
+    {
+      "UpstreamPathTemplate": "/restaurantes/{*everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/restaurantes/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "restauranteapi",
+          "Port": 8080
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/pedidos/{*everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/pedidos/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "pedidosapi",
+          "Port": 8080
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/productos", 
+      "UpstreamHttpMethod": [ "GET", "POST" ], 
+      "DownstreamPathTemplate": "/api/productos",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productosapi",
+          "Port": 8080
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/productos/{everything}",
+      "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/productos/{everything}", 
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productosapi",
+          "Port": 8080
+        }
+      ]
     }
   ],
   "GlobalConfiguration": {
