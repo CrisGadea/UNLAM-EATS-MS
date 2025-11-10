@@ -1,12 +1,18 @@
 {
   "Routes": [
     {
+      "UpstreamPathTemplate": "/hubs/orders/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "DownstreamPathTemplate": "/hubs/orders/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }]
+    },
+    {
       "UpstreamPathTemplate": "/hubs/orders",
-      "UpstreamHttpMethod": ["GET"],
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       "DownstreamPathTemplate": "/hubs/orders",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
-      "Priority": 200
+      "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }]
     },
     {
       "UpstreamPathTemplate": "/api/repartidores",
@@ -31,6 +37,20 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [{ "Host": "pedidosapi", "Port": 8080 }],
       "Priority": 100
+    },
+    {
+      "UpstreamPathTemplate": "/api/auth/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "usuarioapi", "Port": 8080 }]
+    },
+    {
+      "UpstreamPathTemplate": "/api/usuarios/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
+      "DownstreamPathTemplate": "/api/usuarios/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "usuarioapi", "Port": 8080 }]
     },
     {
       "UpstreamPathTemplate": "/api/restaurantes/{everything}",
@@ -81,16 +101,23 @@
     {
       "UpstreamPathTemplate": "/api/payments/{everything}",
       "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"],
-      "DownstreamPathTemplate": "/api/payments/{everything}",
+      "DownstreamPathTemplate": "/payments/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [{ "Host": "paymentsapi", "Port": 3000 }]
+      "DownstreamHostAndPorts": [{ "Host": "payments-api", "Port": 3002 }]
     },
     {
       "UpstreamPathTemplate": "/api/payments",
       "UpstreamHttpMethod": ["GET", "POST"],
-      "DownstreamPathTemplate": "/api/payments",
+      "DownstreamPathTemplate": "/payments",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [{ "Host": "paymentsapi", "Port": 3000 }]
+      "DownstreamHostAndPorts": [{ "Host": "payments-api", "Port": 3002 }]
+    },
+    {
+      "UpstreamPathTemplate": "/webhook/{everything}",
+      "UpstreamHttpMethod": ["POST"],
+      "DownstreamPathTemplate": "/webhook/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "payments-api", "Port": 3002 }]
     }
   ],
   "GlobalConfiguration": {

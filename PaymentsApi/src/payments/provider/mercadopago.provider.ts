@@ -191,8 +191,13 @@ export class MercadoPagoProvider extends PaymentProviderService {
     }[],
     externalReference: string,
   ): Promise<MercadoPagoPaymentResponse> {
-    const baseUrl =
-      this.configService.get<string>('APP_URL') || 'http://localhost:3000';
+    // APP_URL es ngrok para webhooks
+    const webhookUrl =
+      this.configService.get<string>('APP_URL') || 'http://localhost:8000';
+    // FRONTEND_URL para redirección después del pago
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+
     const pref = new Preference(this.mercadopago);
 
     const sdkItems = items.map((it, idx) => ({
@@ -203,20 +208,31 @@ export class MercadoPagoProvider extends PaymentProviderService {
       currency_id: it.currency ?? 'ARS',
     }));
 
-    const body: PreferenceRequest = {
+    // MercadoPago requiere HTTPS para auto_return
+    const isHttps = frontendUrl.startsWith('https://');
+    const preferenceBody: PreferenceRequest = {
       items: sdkItems,
       external_reference: externalReference,
       back_urls: {
-        success: `${baseUrl}/payments/return/success`,
-        failure: `${baseUrl}/payments/return/failure`,
-        pending: `${baseUrl}/payments/return/pending`,
+        success: `${frontendUrl}/payment-result`,
+        failure: `${frontendUrl}/payment-result`,
+        pending: `${frontendUrl}/payment-result`,
       },
-      notification_url: `${baseUrl}/webhook/mercadopago`,
-      auto_return: 'approved',
+      notification_url: `${webhookUrl}/webhook/mercadopago`,
     };
 
+    // Solo agregar auto_return si la URL es HTTPS
+    if (isHttps) {
+      preferenceBody.auto_return = 'approved';
+    }
+
+    this.logger.log(
+      'Creating preference with body:',
+      JSON.stringify(preferenceBody, null, 2),
+    );
+
     try {
-      const response = await pref.create({ body });
+      const response = await pref.create({ body: preferenceBody });
       return {
         id: String(response.id ?? ''),
         initPoint: response.init_point,

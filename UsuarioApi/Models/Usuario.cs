@@ -14,4 +14,6 @@ public partial class Usuario
     public string? Email { get; set; }
 
     public string? DireccionDeEnvio { get; set; }
+
+    public string? Role { get; set; } = "cliente"; // cliente, dueno, repartidor
 }

@@ -245,7 +245,7 @@ app.MapPost("/api/repartidores", (CourierDto payload) =>
     return Results.Created($"/api/repartidores/{payload.Id}", payload);
 });
 
-// Hubs
-app.MapHub<OrderHub>("/hubs/orders");
+//Aplicar CORS
+app.MapHub<OrderHub>("/hubs/orders").RequireCors("ui");
 
 app.Run();
