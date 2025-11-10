@@ -2,3 +2,7 @@ node_modules/
 dist/
 .env
 .env.docker
+.vs/
+bin/
+obj/
+/publish/
