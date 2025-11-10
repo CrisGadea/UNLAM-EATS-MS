@@ -12,8 +12,8 @@ services:
         condition: service_healthy
       pedidosapi:
         condition: service_healthy
-      repartosapi:
-        condition: service_healthy
+      productosapi:
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
       interval: 10s
@@ -52,6 +52,26 @@ services:
         condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=Server=pedidosdb;Database=PedidosDB;User=sa;Password=Your_password123;TrustServerCertificate=True
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Microservicio de Productos
+  productosapi:
+    image: ${DOCKER_REGISTRY-}productosapi
+    build:
+      context: .
+      dockerfile: ProductosApi/Dockerfile
+    ports:
+      - "8005:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   # Base de Datos para Restaurantes
   restaurantedb:
@@ -61,10 +81,50 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   # Base de Datos para Pedidos
   pedidosdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1435:1433"
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  usuariosdb:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    ports:
+      - "1438:1433" # Puerto único en el host (1434, 1435 y 1437 ya están en uso)
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Your_password123
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # productosDB
+  productosdb:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    ports:
+      - "1437:1433" # Puerto único en el host (1434 y 1435 ya están en uso)
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Your_password123
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    
