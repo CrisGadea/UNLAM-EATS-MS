@@ -72,6 +72,11 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Server=repartosdb,1433;Database=RepartosDB;User=sa;Password=Repartos123.;TrustServerCertificate=True
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   # Bases de datos
   restaurantedb:
@@ -123,8 +128,19 @@ services:
       context: ./PaymentsApi
       dockerfile: Dockerfile
     container_name: payments-api
-    env_file:
-      - .env.docker
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/payments_db
+      - POSTGRES_DB=payments_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PORT=3002
+      - NODE_ENV=production
+      - JWT_SECRET=dev-secret
+      - JWT_EXPIRES_IN=1d
+      - MERCADOPAGO_ACCESS_TOKEN=test
+      - MERCADOPAGO_PUBLIC_KEY=test
+      - MERCADOPAGO_WEBHOOK_SECRET=test
+      - APP_URL=http://localhost:3002
     ports:
       - "3002:3002"
     depends_on:
@@ -132,12 +148,7 @@ services:
         condition: service_healthy
     networks: [backend]
 
-networks:
-  backend:
-    driver: bridge
-
-volumes:
-  postgres_data:
+  # Base de datos de Repartos (MS SQL)
   repartosdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
@@ -149,10 +160,56 @@ volumes:
       - repartosdb-data:/var/opt/mssql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Repartos123. -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/1433' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
 
+      # --- NUEVO SERVICIO DE USUARIOS ---
+
+  usuarioapi:
+
+    image: ${DOCKER_REGISTRY-}usuariosapi
+
+    build:
+
+      context: .
+
+      dockerfile: UsuarioAPI/Dockerfile
+
+    ports:
+
+      - "8004:8080" # Puerto público único para este servicio
+
+    depends_on:
+
+      - usuariosdb # Depende de la nueva base de datos
+
+    environment:
+
+      - ConnectionStrings__DefaultConnection=Server=usuariosdb;Database=UsuariosDB;User=sa;Password=Your_password123;TrustServerCertificate=True
+ 
+       # --- NUEVA BASE DE DATOS DE USUARIOS ---
+
+  usuariosdb:
+
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+
+    ports:
+
+      - "1437:1433"
+
+    environment:
+
+      - ACCEPT_EULA=Y
+
+      - SA_PASSWORD=Your_password123
+ 
+
+networks:
+  backend:
+    driver: bridge
+
 volumes:
+  postgres_data:
   repartosdb-data:
