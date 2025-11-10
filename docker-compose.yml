@@ -6,11 +6,13 @@ services:
       context: .
       dockerfile: GatewayApi/Dockerfile
     ports:
-      - "8000:8080" # El puerto público de la aplicación
+      - "8000:8080"
     depends_on:
       restauranteapi:
         condition: service_healthy
       pedidosapi:
+        condition: service_healthy
+      repartosapi:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/localhost/8080' || exit 1"]
@@ -25,7 +27,7 @@ services:
       context: .
       dockerfile: RestauranteApi/Dockerfile
     ports:
-      - "8001:8080" # Puerto interno para debugging
+      - "8001:8080"
     depends_on:
       restaurantedb:
         condition: service_healthy
@@ -44,7 +46,7 @@ services:
       context: .
       dockerfile: PedidosApi/Dockerfile
     ports:
-      - "8002:8080" # Puerto interno para debugging
+      - "8002:8080"
     depends_on:
       pedidosdb:
         condition: service_healthy
@@ -56,11 +58,26 @@ services:
       timeout: 5s
       retries: 10
 
-  # Base de Datos para Restaurantes
+  # Microservicio de Repartos
+  repartosapi:
+    image: repartosapi
+    build:
+      context: .
+      dockerfile: RepartosApi/Dockerfile
+    ports:
+      - "8003:8080"
+    depends_on:
+      repartosdb:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=repartosdb,1433;Database=RepartosDB;User=sa;Password=Repartos123.;TrustServerCertificate=True
+    restart: unless-stopped
+
+  # Bases de datos
   restaurantedb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "1434:1433" # Mapea a un puerto único en el host
+      - "1434:1433"
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
@@ -70,11 +87,10 @@ services:
       timeout: 5s
       retries: 20
 
-  # Base de Datos para Pedidos
   pedidosdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "1435:1433" # Mapea a un puerto único en el host
+      - "1435:1433"
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Your_password123
@@ -83,3 +99,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+
+  repartosdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1436:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Repartos123.
+    volumes:
+      - repartosdb-data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Repartos123. -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  repartosdb-data:
