@@ -77,6 +77,29 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [ { "Host": "pedidosapi", "Port": 8080 } ],
       "Priority": 100
+    },
+    {
+      "UpstreamPathTemplate": "/api/payments/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/payments/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "paymentsapi", "Port": 3002 } ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/payments",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/payments",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "paymentsapi", "Port": 3002 } ],
+      "Priority": 100
+    },
+    {
+      "UpstreamPathTemplate": "/webhook/mercadopago",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/webhook/mercadopago",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "paymentsapi", "Port": 3002 } ],
+      "Priority": 100
     }
   ],
   "GlobalConfiguration": {

@@ -1,0 +1,58 @@
+@baseUrl = http://localhost:8000/api
+@paymentsUrl = {{baseUrl}}/payments
+@token = TU_JWT_TOKEN_AQUI
+
+GET {{baseUrl}}/restaurantes
+Content-Type: application/json
+
+POST {{paymentsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+idempotency-key: test-payment-{{$timestamp}}
+
+{
+  "orderId": 1,
+  "userId": 1,
+  "amountCents": 10000,
+  "currency": "ARS",
+  "description": "Pedido de prueba #1",
+  "method": "card",
+  "provider": "mercadopago"
+}
+
+POST {{paymentsUrl}}/1/checkout
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+GET {{paymentsUrl}}/1
+Authorization: Bearer {{token}}
+
+GET {{paymentsUrl}}/orders/1
+Authorization: Bearer {{token}}
+
+GET {{paymentsUrl}}/users/1?page=1&limit=10
+Authorization: Bearer {{token}}
+
+GET {{paymentsUrl}}/status/pending?page=1&limit=10
+Authorization: Bearer {{token}}
+
+GET {{paymentsUrl}}/provider/12345678
+Authorization: Bearer {{token}}
+
+POST http://localhost:3002/webhook/mercadopago
+Content-Type: application/json
+x-signature: ts=1234567890,v1=dummy_signature_for_dev
+x-request-id: test-request-id
+
+{
+  "action": "payment.updated",
+  "api_version": "v1",
+  "data": {
+    "id": "12345678"
+  },
+  "date_created": "2025-11-10T12:00:00Z",
+  "id": 123456,
+  "live_mode": false,
+  "type": "payment",
+  "user_id": "123456"
+}
