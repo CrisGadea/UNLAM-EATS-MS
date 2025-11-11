@@ -44,13 +44,20 @@ for (var attempt = 1; attempt <= maxRetries; attempt++)
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.MigrateAsync();
 
+        // Ensure new nullable column exists without requiring a separate migration file in this demo
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync("IF COL_LENGTH('Orders','RejectionReason') IS NULL ALTER TABLE Orders ADD RejectionReason nvarchar(max) NULL");
+        }
+        catch { /* ignore if not supported */ }
+
         if (!await db.Orders.AnyAsync())
         {
             var order = new Order
             {
                 CustomerId = "alumno-001",
                 RestaurantId = 1,
-                Status = OrderStatus.Pending,
+                Status = OrderStatus.PedidoCreado,
                 CreatedAt = DateTime.UtcNow,
                 Items = new List<OrderItem>
                 {
@@ -118,7 +125,7 @@ group.MapPost("/from-cart", async (CreateOrderDto dto, AppDbContext db, IHubCont
     {
         CustomerId = dto.CustomerId,
         RestaurantId = dto.RestaurantId,
-        Status = OrderStatus.Pending,
+        Status = OrderStatus.PedidoCreado,
         CreatedAt = DateTime.UtcNow,
         Items = dto.Items.Select(i => new OrderItem
         {
@@ -165,9 +172,9 @@ group.MapPut("/{id:int}/accept", async (int id, AppDbContext db, IHubContext<Ord
 {
     var order = await db.Orders.FindAsync(id);
     if (order is null) return Results.NotFound();
-    if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Accepted)
+    if (order.Status != OrderStatus.PedidoCreado && order.Status != OrderStatus.EnPreparacion)
         return Results.BadRequest("Transición inválida");
-    order.Status = OrderStatus.Preparing;
+    order.Status = OrderStatus.EnPreparacion;
     await db.SaveChangesAsync();
     await hub.Clients.All.SendAsync("orderUpdated", order);
     await hub.Clients.All.SendAsync("statusChanged", new { id = order.Id, status = order.Status, at = DateTime.UtcNow });
@@ -181,10 +188,10 @@ group.MapPut("/{id:int}/assign-courier", async (int id, AssignCourierDto body, A
 {
     var order = await db.Orders.FindAsync(id);
     if (order is null) return Results.NotFound();
-    if (order.Status != OrderStatus.Preparing && order.Status != OrderStatus.Accepted)
+    if (order.Status != OrderStatus.EnPreparacion)
         return Results.BadRequest("Transición inválida");
     order.AssignedCourierId = body.CourierId;
-    order.Status = OrderStatus.Assigned;
+    order.Status = OrderStatus.RepartidorAsignado;
     await db.SaveChangesAsync();
     await hub.Clients.All.SendAsync("orderAssigned", order);
     await hub.Clients.All.SendAsync("statusChanged", new { id = order.Id, status = order.Status, at = DateTime.UtcNow });
@@ -198,9 +205,9 @@ group.MapPut("/{id:int}/start-delivery", async (int id, AppDbContext db, IHubCon
 {
     var order = await db.Orders.FindAsync(id);
     if (order is null) return Results.NotFound();
-    if (order.Status != OrderStatus.Assigned)
+    if (order.Status != OrderStatus.RepartidorAsignado)
         return Results.BadRequest("Transición inválida");
-    order.Status = OrderStatus.OnTheWay;
+    order.Status = OrderStatus.EnCamino;
     await db.SaveChangesAsync();
     await hub.Clients.All.SendAsync("orderUpdated", order);
     await hub.Clients.All.SendAsync("statusChanged", new { id = order.Id, status = order.Status, at = DateTime.UtcNow });
@@ -214,15 +221,33 @@ group.MapPut("/{id:int}/deliver", async (int id, AppDbContext db, IHubContext<Or
 {
     var order = await db.Orders.FindAsync(id);
     if (order is null) return Results.NotFound();
-    if (order.Status != OrderStatus.OnTheWay)
+    if (order.Status != OrderStatus.EnCamino)
         return Results.BadRequest("Transición inválida");
-    order.Status = OrderStatus.Delivered;
+    order.Status = OrderStatus.Entregado;
     await db.SaveChangesAsync();
     await hub.Clients.All.SendAsync("orderUpdated", order);
     await hub.Clients.All.SendAsync("statusChanged", new { id = order.Id, status = order.Status, at = DateTime.UtcNow });
     return Results.NoContent();
 })
     .WithName("EntregarPedido")
+    .WithOpenApi();
+
+// Rechazar pedido → Rechazado (con motivo)
+group.MapPut("/{id:int}/reject", async (int id, string reason, AppDbContext db, IHubContext<OrderHub> hub) =>
+{
+    var order = await db.Orders.FindAsync(id);
+    if (order is null) return Results.NotFound();
+    var raw = (int)order.Status;
+    if (order.Status != OrderStatus.PedidoCreado && order.Status != OrderStatus.EnPreparacion && raw != 1)
+        return Results.BadRequest("Solo se puede rechazar cuando el pedido está en 'Pedido Creado' o 'En preparación'. (Se admite estado legado 1)");
+    order.Status = OrderStatus.Rechazado;
+    order.RejectionReason = reason;
+    await db.SaveChangesAsync();
+    await hub.Clients.All.SendAsync("orderUpdated", order);
+    await hub.Clients.All.SendAsync("statusChanged", new { id = order.Id, status = order.Status, at = DateTime.UtcNow });
+    return Results.NoContent();
+})
+    .WithName("RechazarPedido")
     .WithOpenApi();
 
 // Repartidores mock endpoints (in-memory)

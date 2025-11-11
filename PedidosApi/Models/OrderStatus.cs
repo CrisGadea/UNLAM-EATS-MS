@@ -2,11 +2,11 @@ namespace PedidosApi.Models;
 
 public enum OrderStatus
 {
-    Pending = 0,
-    Accepted = 1,
-    Preparing = 2,
-    Assigned = 3,
-    OnTheWay = 4,
-    Delivered = 5,
-    Cancelled = 6
+    PedidoCreado = 0,
+    // Accepted (1) removed in favor of EnPreparacion directly after acceptance
+    EnPreparacion = 2,
+    RepartidorAsignado = 3,
+    EnCamino = 4,
+    Entregado = 5,
+    Rechazado = 6
 }
