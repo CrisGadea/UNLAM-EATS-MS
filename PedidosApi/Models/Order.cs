@@ -9,9 +9,10 @@ public class Order
     public string CustomerId { get; set; } = string.Empty;
     public int RestaurantId { get; set; }
     public decimal Total { get; set; }
-    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; set; } = OrderStatus.PedidoCreado;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? AssignedCourierId { get; set; }
+    public string? RejectionReason { get; set; }
 
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 }
