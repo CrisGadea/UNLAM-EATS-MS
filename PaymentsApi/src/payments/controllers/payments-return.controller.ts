@@ -1,11 +1,12 @@
-import { Controller, Get, Query, Res, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, Query, Res } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { type Response } from 'express';
 
 @Controller('payments/return')
 export class PaymentsReturnController {
   private readonly logger = new Logger(PaymentsReturnController.name);
 
-  constructor() {}
+  constructor(private readonly configService: ConfigService) {}
 
   @Get('success')
   success(
@@ -24,25 +25,48 @@ export class PaymentsReturnController {
       prefId,
     });
 
-    return `
-    <html>
-      <body>
-        <h2>Gracias 🙌</h2>
-        <p>Estado del pago: ${status}</p>
-      </body>
-    </html>
-  `;
+    const frontendUrl = this.getFrontendUrl();
+    const params = new URLSearchParams({
+      status: 'success',
+      ...(paymentId && { payment_id: paymentId }),
+      ...(status && { collection_status: status }),
+      ...(externalRef && { external_reference: externalRef }),
+    });
+
+    return res.redirect(`${frontendUrl}/payment-result?${params.toString()}`);
   }
 
   @Get('failure')
   failure(@Query() q: Record<string, string>, @Res() res: Response) {
     this.logger.warn('[FAILURE] back_url', q);
-    return res.redirect('/pago?status=failure');
+
+    const frontendUrl = this.getFrontendUrl();
+    const params = new URLSearchParams({
+      status: 'failure',
+      ...(q.payment_id && { payment_id: q.payment_id }),
+      ...(q.external_reference && { external_reference: q.external_reference }),
+    });
+
+    return res.redirect(`${frontendUrl}/payment-result?${params.toString()}`);
   }
 
   @Get('pending')
   pending(@Query() q: Record<string, string>, @Res() res: Response) {
     this.logger.log('[PENDING] back_url', q);
-    return res.redirect('/pago?status=pending');
+
+    const frontendUrl = this.getFrontendUrl();
+    const params = new URLSearchParams({
+      status: 'pending',
+      ...(q.payment_id && { payment_id: q.payment_id }),
+      ...(q.external_reference && { external_reference: q.external_reference }),
+    });
+
+    return res.redirect(`${frontendUrl}/payment-result?${params.toString()}`);
+  }
+
+  private getFrontendUrl(): string {
+    return (
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200'
+    );
   }
 }

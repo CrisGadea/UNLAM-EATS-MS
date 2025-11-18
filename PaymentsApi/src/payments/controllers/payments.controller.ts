@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { CreatePaymentDto } from '../dto/create-payment.dto';
 import { PaymentsService } from '../services/payments.service';
@@ -29,6 +30,8 @@ import { IdempotencyKey } from 'src/common/decorators/idempotency-key.decorator'
 @UseGuards(AuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class PaymentsController {
+  private readonly logger = new Logger(PaymentsController.name);
+
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post()
@@ -54,11 +57,28 @@ export class PaymentsController {
     status: 409,
     description: 'Pago duplicado (idempotency key)',
   })
-  createPayment(
+  async createPayment(
     @Body() paymentDto: CreatePaymentDto,
     @IdempotencyKey(IdempotencyKeyPipe) idempotencyKey?: string,
   ) {
-    return this.paymentsService.createPayment(paymentDto, idempotencyKey);
+    this.logger.log('=== INICIO createPayment ===');
+    this.logger.log(`Payload recibido: ${JSON.stringify(paymentDto)}`);
+    this.logger.log(`Idempotency Key: ${idempotencyKey || 'No proporcionada'}`);
+
+    try {
+      const result = await this.paymentsService.createPayment(
+        paymentDto,
+        idempotencyKey,
+      );
+      this.logger.log(`Pago creado exitosamente: ID ${result.id}`);
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `Error al crear pago: ${error instanceof Error ? error.message : ''}`,
+        error instanceof Error ? error.stack : '',
+      );
+      throw error;
+    }
   }
 
   @Post('/:id/checkout')
