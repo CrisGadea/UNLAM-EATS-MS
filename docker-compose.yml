@@ -84,7 +84,7 @@ services:
       context: .
       dockerfile: UsuarioApi/Dockerfile
     ports:
-      - "8003:8080"
+      - "8007:8080"
     depends_on:
       usuariosdb:
         condition: service_healthy
